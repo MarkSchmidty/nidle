@@ -67,16 +67,27 @@ class NIDLE:
         stdscr.addstr(10, 0, f"Ascended: {self.ascended}")
 
         stdscr.addstr(12, 0, "Press 'q' to quit")
+        stdscr.addstr(13, 0, "Press 'b' to buy a Bronze Mine")
+        stdscr.addstr(14, 0, "Press 's' to buy a Silver Mine")
+        stdscr.addstr(15, 0, "Press 'g' to buy a Gold Mine")
 
         stdscr.refresh()
 
     def update_resources(self):
-        delta_time = 0.25
+        delta_time = 0.1
         self.bronze.update(delta_time)
-        self.silver.rate = self.bronze_mine.quantity * 0.1
-        self.silver.update(delta_time)
-        self.gold.rate = self.silver_mine.quantity * 0.01
-        self.gold.update(delta_time)
+
+        if self.silver_mine.quantity > 0:
+            self.silver.rate = self.bronze_mine.quantity * 0.1
+            self.silver.update(delta_time)
+        else:
+            self.silver.rate = 0
+
+        if self.gold_mine.quantity > 0:
+            self.gold.rate = self.silver_mine.quantity * 0.01
+            self.gold.update(delta_time)
+        else:
+            self.gold.rate = 0
 
     def input_handler(self, key):
         if key == ord('b'):
