@@ -74,7 +74,7 @@ class NIDLE:
         stdscr.refresh()
 
     def update_resources(self):
-        delta_time = 0.01
+        delta_time = 2.0
         self.bronze.update(delta_time)
 
         if self.silver_mine.quantity > 0:
