@@ -37,7 +37,7 @@ class NIDLE:
 
     def main(self, stdscr):
         stdscr.nodelay(1)
-        stdscr.timeout(250)
+        stdscr.timeout(100)
 
         self.bronze_mine.quantity = 1
 
@@ -59,9 +59,22 @@ class NIDLE:
         stdscr.addstr(2, 0, f"Gold: {int(self.gold.count)}")
         stdscr.addstr(3, 0, f"Computronium: {self.computronium:.2f}")
 
-        stdscr.addstr(5, 0, f"Bronze Mines: {self.bronze_mine.quantity} (Buy: {self.bronze_mine.cost} Bronze)")
-        stdscr.addstr(6, 0, f"Silver Mines: {self.silver_mine.quantity} (Buy: {self.silver_mine.cost} Bronze, 10 Silver)")
-        stdscr.addstr(7, 0, f"Gold Mines: {self.gold_mine.quantity} (Buy: {self.gold_mine.cost} Silver, 10 Gold)")
+        bronze_rate = self.bronze.rate * 1000 / 100
+        stdscr.addstr(5, 0, f"Bronze Mines: {self.bronze_mine.quantity} (Buy: {self.bronze_mine.cost} Bronze) {bronze_rate:.2f} Bronze per second")
+
+        if self.silver_mine.quantity == 0:
+            stdscr.addstr(6, 0, f"Silver Mines: {self.silver_mine.quantity} (Buy: {self.silver_mine.cost} Bronze, 10 Silver)")
+        else:
+            silver_cost = 10 * self.silver_mine.quantity
+            silver_rate = self.silver.rate * 1000 / 100
+            stdscr.addstr(6, 0, f"Silver Mines: {self.silver_mine.quantity} (Buy: {silver_cost} Silver) {silver_rate:.2f} Silver per second")
+
+        if self.gold_mine.quantity == 0:
+            stdscr.addstr(7, 0, f"Gold Mines: {self.gold_mine.quantity} (Buy: {self.gold_mine.cost} Silver, 10 Gold)")
+        else:
+            gold_cost = 10 * self.gold_mine.quantity
+            gold_rate = self.gold.rate * 1000 / 100
+            stdscr.addstr(7, 0, f"Gold Mines: {self.gold_mine.quantity} (Buy: {gold_cost} Silver, 10 Gold) {gold_rate:.2f} Gold per second")
 
         stdscr.addstr(9, 0, f"Ascension Target: {self.ascension_target} Gold")
         stdscr.addstr(10, 0, f"Ascended: {self.ascended}")
@@ -74,17 +87,20 @@ class NIDLE:
         stdscr.refresh()
 
     def update_resources(self):
-        delta_time = 2.0
+        delta_time = 1.0
+        bronze_boost = 2 ** self.silver_mine.quantity if self.silver_mine.quantity > 0 else 1
+        self.bronze.rate = self.bronze_mine.quantity * bronze_boost
         self.bronze.update(delta_time)
 
+        silver_boost = 2 ** self.gold_mine.quantity if self.gold_mine.quantity > 0 else 1
         if self.silver_mine.quantity > 0:
-            self.silver.rate = self.bronze_mine.quantity * 0.1
+            self.silver.rate = self.silver_mine.quantity * 0.1 * silver_boost
             self.silver.update(delta_time)
         else:
             self.silver.rate = 0
 
         if self.gold_mine.quantity > 0:
-            self.gold.rate = self.silver_mine.quantity * 0.01
+            self.gold.rate = self.gold_mine.quantity * 0.01
             self.gold.update(delta_time)
         else:
             self.gold.rate = 0
@@ -102,25 +118,27 @@ class NIDLE:
             self.bronze.count -= self.bronze_mine.cost
             self.bronze_mine.purchase()
 
-def purchase_silver_mine(self):
-    if self.silver_mine.quantity == 0:
-        if self.bronze.count >= self.silver_mine.cost:
-            self.bronze.count -= self.silver_mine.cost
-            self.silver_mine.purchase()
-    else:
-        if self.silver.count >= self.silver_mine.cost:
-            self.silver.count -= self.silver_mine.cost
-            self.silver_mine.purchase()
+    def purchase_silver_mine(self):
+        if self.silver_mine.quantity == 0:
+            if self.bronze.count >= self.silver_mine.cost:
+                self.bronze.count -= self.silver_mine.cost
+                self.silver_mine.purchase()
+        else:
+            silver_cost = 10 * self.silver_mine.quantity
+            if self.silver.count >= silver_cost:
+                self.silver.count -= silver_cost
+                self.silver_mine.purchase()
 
-def purchase_gold_mine(self):
-    if self.gold_mine.quantity == 0:
-        if self.silver.count >= self.gold_mine.cost:
-            self.silver.count -= self.gold_mine.cost
-            self.gold_mine.purchase()
-    else:
-        if self.gold.count >= self.gold_mine.cost:
-            self.gold.count -= self.gold_mine.cost
-            self.gold_mine.purchase()
+    def purchase_gold_mine(self):
+        if self.gold_mine.quantity == 0:
+            if self.silver.count >= self.gold_mine.cost:
+                self.silver.count -= self.gold_mine.cost
+                self.gold_mine.purchase()
+        else:
+            gold_cost = 10 * self.gold_mine.quantity
+            if self.gold.count >= gold_cost:
+                self.gold.count -= gold_cost
+                self.gold_mine.purchase()
 
     def check_ascension(self):
         if self.gold.count >= self.ascension_target:
