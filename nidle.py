@@ -60,29 +60,37 @@ class NIDLE:
         stdscr.addstr(3, 0, f"Computronium: {self.computronium:.2f}")
 
         bronze_rate = self.bronze.rate * 1000 / 100
-        stdscr.addstr(5, 0, f"Bronze Mines: {self.bronze_mine.quantity} (Buy: {self.bronze_mine.cost} Bronze) {bronze_rate:.2f} Bronze per second")
+        stdscr.addstr(5, 0, f"Bronze Mines: {self.bronze_mine.quantity} ({bronze_rate:.2f} Bronze/s)")
 
-        if self.silver_mine.quantity == 0:
-            stdscr.addstr(6, 0, f"Silver Mines: {self.silver_mine.quantity} (Buy: {self.silver_mine.cost} Bronze, 10 Silver)")
-        else:
-            silver_cost = 10 * self.silver_mine.quantity
-            silver_rate = self.silver.rate * 1000 / 100
-            stdscr.addstr(6, 0, f"Silver Mines: {self.silver_mine.quantity} (Buy: {silver_cost} Silver) {silver_rate:.2f} Silver per second")
+        silver_cost = 10 * self.silver_mine.quantity
+        silver_rate = self.silver.rate * 1000 / 100
+        stdscr.addstr(6, 0, f"Silver Mines: {self.silver_mine.quantity} ({silver_rate:.2f} Silver/s)")
 
-        if self.gold_mine.quantity == 0:
-            stdscr.addstr(7, 0, f"Gold Mines: {self.gold_mine.quantity} (Buy: {self.gold_mine.cost} Silver, 10 Gold)")
-        else:
-            gold_cost = 10 * self.gold_mine.quantity
-            gold_rate = self.gold.rate * 1000 / 100
-            stdscr.addstr(7, 0, f"Gold Mines: {self.gold_mine.quantity} (Buy: {gold_cost} Silver, 10 Gold) {gold_rate:.2f} Gold per second")
+        gold_cost = 10 * self.gold_mine.quantity
+        gold_rate = self.gold.rate * 1000 / 100
+        stdscr.addstr(7, 0, f"Gold Mines: {self.gold_mine.quantity} ({gold_rate:.2f} Gold/s)")
 
         stdscr.addstr(9, 0, f"Ascension Target: {self.ascension_target} Gold")
         stdscr.addstr(10, 0, f"Ascended: {self.ascended}")
 
-        stdscr.addstr(12, 0, "Press 'q' to quit")
-        stdscr.addstr(13, 0, "Press 'b' to buy a Bronze Mine")
-        stdscr.addstr(14, 0, "Press 's' to buy a Silver Mine")
-        stdscr.addstr(15, 0, "Press 'g' to buy a Gold Mine")
+        stdscr.addstr(16, 0, "Press 'q' to quit")
+
+        buy_bronze_mine_attr = curses.A_BOLD if self.bronze.count >= self.bronze_mine.cost else curses.A_NORMAL
+        stdscr.addstr(12, 0, f"Press 'b' to buy a Bronze Mine for {self.bronze_mine.cost} Bronze", buy_bronze_mine_attr)
+
+        buy_silver_mine_attr = curses.A_BOLD if (self.silver_mine.quantity == 0 and self.bronze.count >= self.silver_mine.cost) or (self.silver_mine.quantity > 0 and self.silver.count >= silver_cost) else curses.A_NORMAL
+
+        if self.silver_mine.quantity == 0:
+            stdscr.addstr(13, 0, f"Press 's' to buy a Silver Mine for {self.silver_mine.cost} Bronze", buy_silver_mine_attr)
+        else:
+            stdscr.addstr(13, 0, f"Press 's' to buy a Silver Mine for {silver_cost} Silver", buy_silver_mine_attr)
+
+        buy_gold_mine_attr = curses.A_BOLD if (self.gold_mine.quantity == 0 and self.silver.count >= self.gold_mine.cost) or (self.gold_mine.quantity > 0 and self.gold.count >= gold_cost) else curses.A_NORMAL
+
+        if self.gold_mine.quantity == 0:
+            stdscr.addstr(14, 0, f"Press 's' to buy a Gold Mine for {self.gold_mine.cost} Silver", buy_gold_mine_attr)
+        else:
+            stdscr.addstr(14, 0, f"Press 's' to buy a Gold Mine for {gold_cost} Gold", buy_gold_mine_attr)
 
         stdscr.refresh()
 
