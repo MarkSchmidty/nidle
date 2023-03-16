@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
-
-import curses
-import time
+import curses,time
 
 class Resource:
     def __init__(self, rate, count):
@@ -54,7 +52,16 @@ class NIDLE:
             self.draw_interface(stdscr)
 
     def draw_interface(self, stdscr):
-        buffer = curses.newpad(20, 80)  # Create an off-screen buffer with enough size to fit all elements
+        screen_height, screen_width = stdscr.getmaxyx()
+
+        # Ensure a minimum size for the screen
+        if screen_height < 25 or screen_width < 80:
+            stdscr.clear()
+            stdscr.addstr(0, 0, "Please increase the terminal size.")
+            stdscr.refresh()
+            return
+
+        buffer = curses.newpad(screen_height, screen_width)
 
         buffer.addstr(0, 0, f"Bronze: {int(self.bronze.count)}")
         buffer.addstr(1, 0, f"Silver: {int(self.silver.count)}")
@@ -76,7 +83,6 @@ class NIDLE:
         buffer.addstr(10, 0, f"Ascension Target: {self.ascension_target} Gold")
         buffer.addstr(11, 0, f"Ascended: {self.ascended}")
 
-        buffer.addstr(17, 0, "Press 'q' to quit")
 
         buy_bronze_mine_attr = curses.A_BOLD if self.bronze.count >= self.bronze_mine.cost else curses.A_NORMAL
         buffer.addstr(13, 0, f"Press 'b' to buy a Bronze Mine for {self.bronze_mine.cost} Bronze", buy_bronze_mine_attr)
@@ -96,18 +102,18 @@ class NIDLE:
             buffer.addstr(15, 0, f"Press 'g' to buy a Gold Mine for {gold_cost} Gold", buy_gold_mine_attr)
 
         perform_ascension_attr = curses.A_BOLD if self.potential_computronium > 0 else curses.A_NORMAL
-        buffer.addstr(16, 0, f"Press 'a' to perform Ascension", perform_ascension_attr)
-
-        buffer.refresh(0, 0, 0, 0, 20, 80)  # Copy the buffer to the main screen
+        buffer.addstr(17, 0, f"Press 'a' to perform Ascension", perform_ascension_attr)
+        buffer.addstr(19, 0, "Press 'q' to quit")
+        buffer.refresh(0, 0, 0, 0, screen_height - 1, screen_width - 1)  # Copy the buffer to the main screen
         stdscr.refresh()  # Refresh the main screen
 
     def update_resources(self):
         delta_time = 0.05
-        bronze_boost = 1.35 ** self.silver_mine.quantity if self.silver_mine.quantity > 0 else 1
+        bronze_boost = 1.35 ** int(self.silver.count) if self.silver_mine.quantity > 0 else 1
         self.bronze.rate = self.bronze_mine.quantity * bronze_boost
         self.bronze.update(delta_time)
 
-        silver_boost = 1.35 ** self.gold_mine.quantity if self.gold_mine.quantity > 0 else 1
+        silver_boost = 1.35 ** int(self.gold.count) if self.gold_mine.quantity > 0 else 1
         if self.silver_mine.quantity > 0:
             self.silver.rate = self.silver_mine.quantity * 0.1 * silver_boost
             self.silver.update(delta_time)
