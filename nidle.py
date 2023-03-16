@@ -28,7 +28,7 @@ class NIDLE:
         self.gold = Resource(rate=0, count=0)
         self.computronium = 0.0
 
-        self.bronze_mine = Mine(cost=100, cost_multiplier=1.5)
+        self.bronze_mine = Mine(cost=10, cost_multiplier=1.5)
         self.silver_mine = Mine(cost=1000, cost_multiplier=1.5)
         self.gold_mine = Mine(cost=1000, cost_multiplier=1.5)
 
@@ -37,7 +37,7 @@ class NIDLE:
 
     def main(self, stdscr):
         stdscr.nodelay(1)
-        stdscr.timeout(100)
+        stdscr.timeout(50)
 
         self.bronze_mine.quantity = 1
 
@@ -60,15 +60,15 @@ class NIDLE:
         buffer.addstr(2, 0, f"Gold: {int(self.gold.count)}")
         buffer.addstr(3, 0, f"Computronium: {self.computronium:.2f}")
 
-        bronze_rate = self.bronze.rate * 1000 / 100
+        bronze_rate = self.bronze.rate
         buffer.addstr(5, 0, f"Bronze Mines: {self.bronze_mine.quantity} ({bronze_rate:.2f} Bronze/s)")
 
         silver_cost = 10 * self.silver_mine.quantity
-        silver_rate = self.silver.rate * 1000 / 100
+        silver_rate = self.silver.rate
         buffer.addstr(6, 0, f"Silver Mines: {self.silver_mine.quantity} ({silver_rate:.2f} Silver/s)")
 
         gold_cost = 10 * self.gold_mine.quantity
-        gold_rate = self.gold.rate * 1000 / 100
+        gold_rate = self.gold.rate
         buffer.addstr(7, 0, f"Gold Mines: {self.gold_mine.quantity} ({gold_rate:.2f} Gold/s)")
 
         buffer.addstr(9, 0, f"Ascension Target: {self.ascension_target} Gold")
@@ -97,12 +97,12 @@ class NIDLE:
         stdscr.refresh()  # Refresh the main screen
 
     def update_resources(self):
-        delta_time = 1.0
-        bronze_boost = 2 ** self.silver_mine.quantity if self.silver_mine.quantity > 0 else 1
+        delta_time = 0.05
+        bronze_boost = 1.35 ** self.silver_mine.quantity if self.silver_mine.quantity > 0 else 1
         self.bronze.rate = self.bronze_mine.quantity * bronze_boost
         self.bronze.update(delta_time)
 
-        silver_boost = 2 ** self.gold_mine.quantity if self.gold_mine.quantity > 0 else 1
+        silver_boost = 1.35 ** self.gold_mine.quantity if self.gold_mine.quantity > 0 else 1
         if self.silver_mine.quantity > 0:
             self.silver.rate = self.silver_mine.quantity * 0.1 * silver_boost
             self.silver.update(delta_time)
