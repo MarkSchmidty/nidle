@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import curses,time, argparse
+import curses,time,argparse,math
 
 class Resource:
     def __init__(self, rate, count):
@@ -111,14 +111,21 @@ class NIDLE:
         add_line(f"Bronze Mines: {self.format_large_number(self.bronze_mine.quantity)} ({self.format_large_number(bronze_rate, 4)} Bronze/s)")
 
         silver_rate = 0
-        if self.silver_mine.quantity >= 1:
-            silver_cost = 10 * self.silver_mine.quantity
+        if self.silver_mine.quantity == 1:
+            silver_cost = 10
+            silver_rate = self.silver.rate
+        if self.silver_mine.quantity > 1:
+            silver_cost = 10 * 1.5 ** self.silver_mine.quantity
             silver_rate = self.silver.rate
         add_line(f"Silver Mines: {self.format_large_number(self.silver_mine.quantity)} ({self.format_large_number(silver_rate, 4)} Silver/s)")
 
         gold_rate = 0
-        if self.gold_mine.quantity >= 1:
-            gold_cost = 10 * self.gold_mine.quantity
+        if self.gold_mine.quantity == 1:
+            gold_cost = 10
+            gold_rate = self.gold.rate
+            add_line(f"Gold Mines: {self.format_large_number(self.gold_mine.quantity)} ({self.format_large_number(gold_rate, 4)} Gold/s)")
+        if self.gold_mine.quantity > 1:
+            gold_cost = 10 * 1.5 ** self.gold_mine.quantity
             gold_rate = self.gold.rate
             add_line(f"Gold Mines: {self.format_large_number(self.gold_mine.quantity)} ({self.format_large_number(gold_rate, 4)} Gold/s)")
         add_line("")
@@ -162,11 +169,12 @@ class NIDLE:
     def update_resources(self):
         delta_time = 0.05 * self.delta_multiplier
         ascension_multiplier = 1.5 ** (1 + self.computronium) if self.computronium > 0 else 1
-        bronze_boost = (1.02 ** int(self.silver.count) if self.silver_mine.quantity > 0 else 1) * ascension_multiplier
+        
+        bronze_boost = (1.02 ** min(math.floor(self.silver.count), 7000) if self.silver_mine.quantity > 0 else 1) * ascension_multiplier
         self.bronze.rate = self.bronze_mine.quantity * bronze_boost
         self.bronze.update(delta_time)
 
-        silver_boost = (1.02 ** int(self.gold.count) if self.gold_mine.quantity > 0 else 1) * ascension_multiplier
+        silver_boost = (1.02 ** min(math.floor(self.gold.count), 7000) if self.gold_mine.quantity > 0 else 1) * ascension_multiplier
         if self.silver_mine.quantity > 0:
             self.silver.rate = self.silver_mine.quantity * 0.1 * silver_boost
             self.silver.update(delta_time)
