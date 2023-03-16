@@ -41,3 +41,8 @@ Available when a target amount of Gold is reached.
   - First Ascension: 1 Gold
   - Second Ascension: 2 Gold
   - Subsequent Ascensions: Target doubles with each ascension.
+
+# Known Isseues
+- [Beta] "buy" lines are supposed to be bold when a mine is available for purchase, but are not.
+- [Beta] The real cost deducted by silver_cost and gold_cost is less than the cost displayed.
+- [Beta] Beta still has -d / --debug mode flag for addig a multiplier to speed up the game.
