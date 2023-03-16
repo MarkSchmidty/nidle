@@ -53,46 +53,48 @@ class NIDLE:
             self.draw_interface(stdscr)
 
     def draw_interface(self, stdscr):
-        stdscr.clear()
-        stdscr.addstr(0, 0, f"Bronze: {int(self.bronze.count)}")
-        stdscr.addstr(1, 0, f"Silver: {int(self.silver.count)}")
-        stdscr.addstr(2, 0, f"Gold: {int(self.gold.count)}")
-        stdscr.addstr(3, 0, f"Computronium: {self.computronium:.2f}")
+        buffer = curses.newpad(20, 80)  # Create an off-screen buffer with enough size to fit all elements
+
+        buffer.addstr(0, 0, f"Bronze: {int(self.bronze.count)}")
+        buffer.addstr(1, 0, f"Silver: {int(self.silver.count)}")
+        buffer.addstr(2, 0, f"Gold: {int(self.gold.count)}")
+        buffer.addstr(3, 0, f"Computronium: {self.computronium:.2f}")
 
         bronze_rate = self.bronze.rate * 1000 / 100
-        stdscr.addstr(5, 0, f"Bronze Mines: {self.bronze_mine.quantity} ({bronze_rate:.2f} Bronze/s)")
+        buffer.addstr(5, 0, f"Bronze Mines: {self.bronze_mine.quantity} ({bronze_rate:.2f} Bronze/s)")
 
         silver_cost = 10 * self.silver_mine.quantity
         silver_rate = self.silver.rate * 1000 / 100
-        stdscr.addstr(6, 0, f"Silver Mines: {self.silver_mine.quantity} ({silver_rate:.2f} Silver/s)")
+        buffer.addstr(6, 0, f"Silver Mines: {self.silver_mine.quantity} ({silver_rate:.2f} Silver/s)")
 
         gold_cost = 10 * self.gold_mine.quantity
         gold_rate = self.gold.rate * 1000 / 100
-        stdscr.addstr(7, 0, f"Gold Mines: {self.gold_mine.quantity} ({gold_rate:.2f} Gold/s)")
+        buffer.addstr(7, 0, f"Gold Mines: {self.gold_mine.quantity} ({gold_rate:.2f} Gold/s)")
 
-        stdscr.addstr(9, 0, f"Ascension Target: {self.ascension_target} Gold")
-        stdscr.addstr(10, 0, f"Ascended: {self.ascended}")
+        buffer.addstr(9, 0, f"Ascension Target: {self.ascension_target} Gold")
+        buffer.addstr(10, 0, f"Ascended: {self.ascended}")
 
-        stdscr.addstr(16, 0, "Press 'q' to quit")
+        buffer.addstr(16, 0, "Press 'q' to quit")
 
         buy_bronze_mine_attr = curses.A_BOLD if self.bronze.count >= self.bronze_mine.cost else curses.A_NORMAL
-        stdscr.addstr(12, 0, f"Press 'b' to buy a Bronze Mine for {self.bronze_mine.cost} Bronze", buy_bronze_mine_attr)
+        buffer.addstr(12, 0, f"Press 'b' to buy a Bronze Mine for {self.bronze_mine.cost} Bronze", buy_bronze_mine_attr)
 
         buy_silver_mine_attr = curses.A_BOLD if (self.silver_mine.quantity == 0 and self.bronze.count >= self.silver_mine.cost) or (self.silver_mine.quantity > 0 and self.silver.count >= silver_cost) else curses.A_NORMAL
 
         if self.silver_mine.quantity == 0:
-            stdscr.addstr(13, 0, f"Press 's' to buy a Silver Mine for {self.silver_mine.cost} Bronze", buy_silver_mine_attr)
+            buffer.addstr(13, 0, f"Press 's' to buy a Silver Mine for {self.silver_mine.cost} Bronze", buy_silver_mine_attr)
         else:
-            stdscr.addstr(13, 0, f"Press 's' to buy a Silver Mine for {silver_cost} Silver", buy_silver_mine_attr)
+            buffer.addstr(13, 0, f"Press 's' to buy a Silver Mine for {silver_cost} Silver", buy_silver_mine_attr)
 
         buy_gold_mine_attr = curses.A_BOLD if (self.gold_mine.quantity == 0 and self.silver.count >= self.gold_mine.cost) or (self.gold_mine.quantity > 0 and self.gold.count >= gold_cost) else curses.A_NORMAL
 
         if self.gold_mine.quantity == 0:
-            stdscr.addstr(14, 0, f"Press 's' to buy a Gold Mine for {self.gold_mine.cost} Silver", buy_gold_mine_attr)
+            buffer.addstr(14, 0, f"Press 's' to buy a Gold Mine for {self.gold_mine.cost} Silver", buy_gold_mine_attr)
         else:
-            stdscr.addstr(14, 0, f"Press 's' to buy a Gold Mine for {gold_cost} Gold", buy_gold_mine_attr)
+            buffer.addstr(14, 0, f"Press 's' to buy a Gold Mine for {gold_cost} Gold", buy_gold_mine_attr)
 
-        stdscr.refresh()
+        buffer.refresh(0, 0, 0, 0, 20, 80)  # Copy the buffer to the main screen
+        stdscr.refresh()  # Refresh the main screen
 
     def update_resources(self):
         delta_time = 1.0
