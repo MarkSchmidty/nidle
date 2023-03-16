@@ -102,16 +102,24 @@ class NIDLE:
             self.bronze.count -= self.bronze_mine.cost
             self.bronze_mine.purchase()
 
-    def purchase_silver_mine(self):
-        if self.bronze.count >= self.silver_mine.cost and self.silver.count >= 10:
+def purchase_silver_mine(self):
+    if self.silver_mine.quantity == 0:
+        if self.bronze.count >= self.silver_mine.cost:
             self.bronze.count -= self.silver_mine.cost
-            self.silver.count -= 10
+            self.silver_mine.purchase()
+    else:
+        if self.silver.count >= self.silver_mine.cost:
+            self.silver.count -= self.silver_mine.cost
             self.silver_mine.purchase()
 
-    def purchase_gold_mine(self):
-        if self.silver.count >= self.gold_mine.cost and self.gold.count >= 10:
+def purchase_gold_mine(self):
+    if self.gold_mine.quantity == 0:
+        if self.silver.count >= self.gold_mine.cost:
             self.silver.count -= self.gold_mine.cost
-            self.gold.count -= 10
+            self.gold_mine.purchase()
+    else:
+        if self.gold.count >= self.gold_mine.cost:
+            self.gold.count -= self.gold_mine.cost
             self.gold_mine.purchase()
 
     def check_ascension(self):
