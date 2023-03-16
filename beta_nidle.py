@@ -91,11 +91,11 @@ class NIDLE:
                 buffer.addstr(line_number, 0, line_content)
                 line_number += 1
 
-        add_line(f"Bronze: {self.format_large_number(int(self.bronze.count))}")
+        add_line(f"Bronze: {self.format_large_number(self.bronze.count)}")
         if self.silver_mine.quantity > 0:
-            add_line(f"Silver: {self.format_large_number(int(self.silver.count))}")
+            add_line(f"Silver: {self.format_large_number(self.silver.count)}")
         if self.gold_mine.quantity > 0:
-            add_line(f"Gold: {self.format_large_number(int(self.gold.count))}")
+            add_line(f"Gold: {self.format_large_number(self.gold.count)}")
         add_line("")
 
         ascension_multiplier = 1.5 ** (1 + self.computronium) if self.computronium > 0 else 1        
